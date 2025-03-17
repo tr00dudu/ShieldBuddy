@@ -1,0 +1,457 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+    <Frame name="ShieldBuddyOptionsFrame" toplevel="true" frameStrata="HIGH" movable="true" enableMouse="true" hidden="true" parent="UIParent" clampedToScreen="true">
+        <Size>
+            <AbsDimension x="300" y="380"/>
+        </Size>
+        <Anchors>
+            <Anchor point="CENTER"/>
+        </Anchors>
+        <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
+            <BackgroundInsets>
+                <AbsInset left="11" right="12" top="12" bottom="11"/>
+            </BackgroundInsets>
+            <TileSize>
+                <AbsValue val="32"/>
+            </TileSize>
+            <EdgeSize>
+                <AbsValue val="32"/>
+            </EdgeSize>
+        </Backdrop>
+        <Layers>
+            <Layer level="ARTWORK">
+                <Texture name="$parentHeader" file="Interface\DialogFrame\UI-DialogBox-Header">
+                    <Size>
+                        <AbsDimension x="300" y="64"/>
+                    </Size>
+                    <Anchors>
+                        <Anchor point="TOP">
+                            <Offset>
+                                <AbsDimension x="0" y="14"/>
+                            </Offset>
+                        </Anchor>
+                    </Anchors>
+                </Texture>
+                <FontString name="$parent_Title" inherits="GameFontNormal" text="ShieldBuddy Settings">
+                    <Anchors>
+                        <Anchor point="TOP">
+                            <Offset>
+                                <AbsDimension x="0" y="-1"/>
+                            </Offset>
+                        </Anchor>
+                    </Anchors>
+                </FontString>
+                <FontString name="$parent_PositionText" inherits="GameFontNormal" text="Position">
+                    <Anchors>
+                        <Anchor point="TOPLEFT">
+                            <Offset>
+                                <AbsDimension x="20" y="-35"/>
+                            </Offset>
+                        </Anchor>
+                    </Anchors>
+                </FontString>
+                <FontString name="$parent_OrientationText" inherits="GameFontNormal" text="Orientation:">
+                    <Anchors>
+                        <Anchor point="TOPLEFT">
+                            <Offset>
+                                <AbsDimension x="20" y="-140"/>
+                            </Offset>
+                        </Anchor>
+                    </Anchors>
+                </FontString>
+                <FontString name="$parent_NumbersText" inherits="GameFontNormal" text="Numbers:">
+                    <Anchors>
+                        <Anchor point="TOPLEFT">
+                            <Offset>
+                                <AbsDimension x="20" y="-165"/>
+                            </Offset>
+                        </Anchor>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Slider name="$parentSliderX" inherits="OptionsSliderTemplate">
+                <Size>
+                    <AbsDimension x="220" y="16"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="TOPLEFT">
+                        <Offset>
+                            <AbsDimension x="20" y="-60"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        getglobal(this:GetName().."Text"):SetText("Horizontal Position")
+                        this:SetValueStep(1)
+                        this:SetValue(ShieldBuddyOptions.FrameX or 0)
+                        this:SetMinMaxValues(-800, 800)
+                    </OnLoad>
+                    <OnValueChanged>
+                        ShieldBuddyOptions.FrameX = this:GetValue()
+                        ShieldBuddy_UpdatePosition()
+                        getglobal(this:GetName().."Text"):SetText("Horizontal Position ("..floor(this:GetValue())..")")
+                    </OnValueChanged>
+                </Scripts>
+            </Slider>
+            <Button name="$parentSliderXMinus" inherits="UIPanelButtonTemplate" text="-">
+                <Size>
+                    <AbsDimension x="16" y="16"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentSliderX" relativePoint="RIGHT">
+                        <Offset>
+                            <AbsDimension x="10" y="0"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        local slider = getglobal("ShieldBuddyOptionsFrameSliderX")
+                        local min, max = slider:GetMinMaxValues()
+                        local newValue = math.max(min, slider:GetValue() - 1)
+                        slider:SetValue(newValue)
+                    </OnClick>
+                </Scripts>
+            </Button>
+            <Button name="$parentSliderXPlus" inherits="UIPanelButtonTemplate" text="+">
+                <Size>
+                    <AbsDimension x="16" y="16"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentSliderXMinus" relativePoint="RIGHT">
+                        <Offset>
+                            <AbsDimension x="2" y="0"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        local slider = getglobal("ShieldBuddyOptionsFrameSliderX")
+                        local min, max = slider:GetMinMaxValues()
+                        local newValue = math.min(max, slider:GetValue() + 1)
+                        slider:SetValue(newValue)
+                    </OnClick>
+                </Scripts>
+            </Button>
+            <Slider name="$parentSliderY" inherits="OptionsSliderTemplate">
+                <Size>
+                    <AbsDimension x="220" y="16"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="TOPLEFT">
+                        <Offset>
+                            <AbsDimension x="20" y="-100"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnLoad>
+                        getglobal(this:GetName().."Text"):SetText("Vertical Position")
+                        this:SetValueStep(1)
+                        this:SetValue(ShieldBuddyOptions.FrameY or 0)
+                        this:SetMinMaxValues(-600, 600)
+                    </OnLoad>
+                    <OnValueChanged>
+                        ShieldBuddyOptions.FrameY = this:GetValue()
+                        ShieldBuddy_UpdatePosition()
+                        getglobal(this:GetName().."Text"):SetText("Vertical Position ("..floor(this:GetValue())..")")
+                    </OnValueChanged>
+                </Scripts>
+            </Slider>
+            <Button name="$parentSliderYMinus" inherits="UIPanelButtonTemplate" text="-">
+                <Size>
+                    <AbsDimension x="16" y="16"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentSliderY" relativePoint="RIGHT">
+                        <Offset>
+                            <AbsDimension x="10" y="0"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        local slider = getglobal("ShieldBuddyOptionsFrameSliderY")
+                        local min, max = slider:GetMinMaxValues()
+                        local newValue = math.max(min, slider:GetValue() - 1)
+                        slider:SetValue(newValue)
+                    </OnClick>
+                </Scripts>
+            </Button>
+            <Button name="$parentSliderYPlus" inherits="UIPanelButtonTemplate" text="+">
+                <Size>
+                    <AbsDimension x="16" y="16"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentSliderYMinus" relativePoint="RIGHT">
+                        <Offset>
+                            <AbsDimension x="2" y="0"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        local slider = getglobal("ShieldBuddyOptionsFrameSliderY")
+                        local min, max = slider:GetMinMaxValues()
+                        local newValue = math.min(max, slider:GetValue() + 1)
+                        slider:SetValue(newValue)
+                    </OnClick>
+                </Scripts>
+            </Button>
+            <CheckButton name="$parentHorizontalCheck" inherits="UICheckButtonTemplate">
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parent_OrientationText" relativePoint="RIGHT">
+                        <Offset>
+                            <AbsDimension x="10" y="0"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnShow>
+                        this:SetChecked(ShieldBuddyOptions.Orientation == "horizontal")
+                    </OnShow>
+                    <OnLoad>
+                        getglobal(this:GetName().."Text"):SetText("Horizontal")
+                        this:SetChecked(ShieldBuddyOptions.Orientation == "horizontal")
+                    </OnLoad>
+                    <OnClick>
+                        if this:GetChecked() then
+                            getglobal("ShieldBuddyOptionsFrameVerticalCheck"):SetChecked(false)
+                            ShieldBuddyOptions.Orientation = "horizontal"
+                            HandleOrientationChange()
+                        else
+                            if ShieldBuddyOptions.Orientation == "horizontal" then
+                                this:SetChecked(true)
+                            end
+                        end
+                    </OnClick>
+                </Scripts>
+            </CheckButton>
+            <CheckButton name="$parentVerticalCheck" inherits="UICheckButtonTemplate">
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentHorizontalCheck" relativePoint="RIGHT">
+                        <Offset>
+                            <AbsDimension x="60" y="0"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnShow>
+                        this:SetChecked(ShieldBuddyOptions.Orientation == "vertical")
+                    </OnShow>
+                    <OnLoad>
+                        getglobal(this:GetName().."Text"):SetText("Vertical")
+                        this:SetChecked(ShieldBuddyOptions.Orientation == "vertical")
+                    </OnLoad>
+                    <OnClick>
+                        if this:GetChecked() then
+                            getglobal("ShieldBuddyOptionsFrameHorizontalCheck"):SetChecked(false)
+                            ShieldBuddyOptions.Orientation = "vertical"
+                            HandleOrientationChange()
+                        else
+                            if ShieldBuddyOptions.Orientation == "vertical" then
+                                this:SetChecked(true)
+                            end
+                        end
+                    </OnClick>
+                </Scripts>
+            </CheckButton>
+            <CheckButton name="$parentShowCurrentCheck" inherits="UICheckButtonTemplate">
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parent_NumbersText" relativePoint="RIGHT">
+                        <Offset>
+                            <AbsDimension x="10" y="0"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnShow>
+                        this:SetChecked(ShieldBuddyOptions.ShowCurrentNumbers == 1)
+                    </OnShow>
+                    <OnLoad>
+                        getglobal(this:GetName().."Text"):SetText("Current")
+                        this:SetChecked(ShieldBuddyOptions.ShowCurrentNumbers == 1)
+                    </OnLoad>
+                    <OnClick>
+                        ShieldBuddyOptions.ShowCurrentNumbers = this:GetChecked() and 1 or 0
+                        if UpdateShieldDisplay then
+                            UpdateShieldDisplay()
+                        end
+                    </OnClick>
+                </Scripts>
+            </CheckButton>
+            <CheckButton name="$parentShowTotalCheck" inherits="UICheckButtonTemplate">
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentShowCurrentCheck" relativePoint="RIGHT">
+                        <Offset>
+                            <AbsDimension x="60" y="0"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnShow>
+                        this:SetChecked(ShieldBuddyOptions.ShowTotalNumbers == 1)
+                    </OnShow>
+                    <OnLoad>
+                        getglobal(this:GetName().."Text"):SetText("Total")
+                        this:SetChecked(ShieldBuddyOptions.ShowTotalNumbers == 1)
+                    </OnLoad>
+                    <OnClick>
+                        ShieldBuddyOptions.ShowTotalNumbers = this:GetChecked() and 1 or 0
+                        if UpdateShieldDisplay then
+                            UpdateShieldDisplay()
+                        end
+                    </OnClick>
+                </Scripts>
+            </CheckButton>
+            <CheckButton name="$parentCumulativeCheck" inherits="UICheckButtonTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT">
+                        <Offset>
+                            <AbsDimension x="20" y="-190"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnShow>
+                        this:SetChecked(ShieldBuddyOptions.ShowCumulative == 1)
+                    </OnShow>
+                    <OnLoad>
+                        getglobal(this:GetName().."Text"):SetText("Cumulative Bar")
+                        this:SetChecked(ShieldBuddyOptions.ShowCumulative == 1)
+                    </OnLoad>
+                    <OnClick>
+                        ShieldBuddyOptions.ShowCumulative = this:GetChecked() and 1 or 0
+                        Debug("Cumulative set to: " .. ShieldBuddyOptions.ShowCumulative)
+                        if UpdateShieldDisplay then
+                            UpdateShieldDisplay()
+                        end
+                    </OnClick>
+                </Scripts>
+            </CheckButton>
+            <CheckButton name="$parentIndividualCheck" inherits="UICheckButtonTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT">
+                        <Offset>
+                            <AbsDimension x="20" y="-215"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnShow>
+                        this:SetChecked(ShieldBuddyOptions.ShowIndividual == 1)
+                    </OnShow>
+                    <OnLoad>
+                        getglobal(this:GetName().."Text"):SetText("Individual Bars")
+                        this:SetChecked(ShieldBuddyOptions.ShowIndividual == 1)
+                    </OnLoad>
+                    <OnClick>
+                        ShieldBuddyOptions.ShowIndividual = this:GetChecked() and 1 or 0
+                        Debug("Individual set to: " .. ShieldBuddyOptions.ShowIndividual)
+                        if UpdateShieldDisplay then
+                            UpdateShieldDisplay()
+                        end
+                    </OnClick>
+                </Scripts>
+            </CheckButton>
+            <CheckButton name="$parentShieldColorsCheck" inherits="UICheckButtonTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT">
+                        <Offset>
+                            <AbsDimension x="20" y="-240"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnShow>
+                        this:SetChecked(ShieldBuddyOptions.UseShieldColors == 1)
+                    </OnShow>
+                    <OnLoad>
+                        getglobal(this:GetName().."Text"):SetText("Shield Colors")
+                        this:SetChecked(ShieldBuddyOptions.UseShieldColors == 1)
+                    </OnLoad>
+                    <OnClick>
+                        ShieldBuddyOptions.UseShieldColors = this:GetChecked() and 1 or 0
+                        if UpdateShieldDisplay then
+                            UpdateShieldDisplay()
+                        end
+                    </OnClick>
+                </Scripts>
+            </CheckButton>
+            <CheckButton name="$parentDebugMessagesCheck" inherits="UICheckButtonTemplate">
+                <Size>
+                    <AbsDimension x="24" y="24"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT">
+                        <Offset>
+                            <AbsDimension x="20" y="40"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnShow>
+                        this:SetChecked(ShieldBuddyOptions.DebugMessages == 1)
+                    </OnShow>
+                    <OnLoad>
+                        local text = getglobal(this:GetName().."Text")
+                        text:SetText("Debug Messages")
+                        text:SetFont("Fonts\\FRIZQT__.TTF", 10)
+                        this:SetChecked(ShieldBuddyOptions.DebugMessages == 1)
+                    </OnLoad>
+                    <OnClick>
+                        ShieldBuddyOptions.DebugMessages = this:GetChecked() and 1 or 0
+                        Debug("Debug Messages set to: " .. ShieldBuddyOptions.DebugMessages)
+                    </OnClick>
+                </Scripts>
+            </CheckButton>
+            <Button name="$parentOkayButton" inherits="UIPanelButtonTemplate" text="Confirm">
+                <Size>
+                    <AbsDimension x="90" y="22"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOM">
+                        <Offset>
+                            <AbsDimension x="-6" y="20"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        ShieldBuddyOptions_Confirm()
+                    </OnClick>
+                </Scripts>
+            </Button>
+            <Button name="$parentCancelButton" inherits="UIPanelButtonTemplate" text="Cancel">
+                <Size>
+                    <AbsDimension x="90" y="22"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT" relativePoint="BOTTOM">
+                        <Offset>
+                            <AbsDimension x="6" y="20"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnClick>
+                        ShieldBuddyOptions_Cancel()
+                    </OnClick>
+                </Scripts>
+            </Button>
+        </Frames>
+        <Scripts>
+            <OnLoad>
+                this:RegisterForDrag("LeftButton")
+            </OnLoad>
+            <OnDragStart>
+                this:StartMoving()
+            </OnDragStart>
+            <OnDragStop>
+                this:StopMovingOrSizing()
+            </OnDragStop>
+        </Scripts>
+    </Frame>
+</Ui> 

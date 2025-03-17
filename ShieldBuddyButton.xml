@@ -1,0 +1,99 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+    <Frame name="ShieldBuddyButtonFrame" parent="Minimap" enableMouse="true" hidden="false" frameStrata="LOW">
+        <Size>
+            <AbsDimension x="32" y="32"/>
+        </Size>
+        <Anchors>
+            <Anchor point="TOPLEFT" relativeTo="Minimap" relativePoint="RIGHT">
+                <Offset>
+                    <AbsDimension x="2" y="0"/>
+                </Offset>
+            </Anchor>
+        </Anchors>
+        <Frames>
+            <Button name="ShieldBuddyButton">
+                <HighlightTexture alphaMode="ADD" file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight"/>
+                <Size>
+                    <AbsDimension x="33" y="33"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="TOPLEFT">
+                        <Offset>
+                            <AbsDimension x="0" y="0"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Layers>
+                    <Layer level="BORDER">
+                        <Texture name="$parentIcon" file="Interface\Icons\Spell_Holy_PowerWordShield">
+                            <Size>
+                                <AbsDimension x="20" y="20"/>
+                            </Size>
+                            <Anchors>
+                                <Anchor point="CENTER">
+                                    <Offset>
+                                        <AbsDimension x="0" y="1"/>
+                                    </Offset>
+                                </Anchor>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY">
+                        <Texture name="$parentBorder" file="Interface\Minimap\MiniMap-TrackingBorder">
+                            <Size>
+                                <AbsDimension x="52" y="52"/>
+                            </Size>
+                            <Anchors>
+                                <Anchor point="TOPLEFT"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Scripts>
+                    <OnLoad>
+                        getglobal(this:GetName().."Icon"):SetVertexColor(1, 1, 1)
+                        this:RegisterForDrag("RightButton")
+                        this.dragme = false
+                    </OnLoad>
+                    <OnDragStart>
+                        this.dragme = true
+                    </OnDragStart>
+                    <OnDragStop>
+                        this.dragme = false
+                    </OnDragStop>
+                    <OnUpdate>
+                        if(this.dragme == true) then
+                            ShieldBuddyButton_BeingDragged()
+                        end
+                    </OnUpdate>
+                    <OnClick>
+                        if (arg1 == "LeftButton") then
+                            ShieldBuddyOptions_Toggle()
+                        end
+                    </OnClick>
+                    <OnEnter>
+                        ShieldBuddyButton_OnEnter()
+                    </OnEnter>
+                    <OnLeave>
+                        GameTooltip:Hide()
+                    </OnLeave>
+                </Scripts>
+            </Button>
+        </Frames>
+        <Scripts>
+            <OnLoad>
+                this:RegisterEvent("VARIABLES_LOADED")
+            </OnLoad>
+            <OnEvent>
+                if (event == "VARIABLES_LOADED") then
+                    if ShieldBuddyOptions.ButtonShown then
+                        ShieldBuddyButtonFrame:Show()
+                    else
+                        ShieldBuddyButtonFrame:Hide()
+                    end
+                    ShieldBuddyButton_UpdatePosition()
+                end
+            </OnEvent>
+        </Scripts>
+    </Frame>
+</Ui> 

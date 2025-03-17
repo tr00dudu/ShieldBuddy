@@ -1,0 +1,14 @@
+## Interface: 11200
+## Title: ShieldBuddy
+## Notes: Tracks absorption shields and their remaining values
+
+## Author: Dudu
+## Version: 1.1
+## Dependencies: SuperAPI, SuperAPI_Castlib
+## SavedVariablesPerCharacter: ShieldBuddyOptions, ShieldBuddyShieldDB
+
+ShieldBuddyOptions.lua
+ShieldBuddyButton.xml
+ShieldBuddyOptions.xml
+ShieldBuddyShields.lua
+ShieldBuddy.lua 
