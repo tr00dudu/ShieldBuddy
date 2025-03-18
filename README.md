@@ -1,5 +1,5 @@
 # ShieldBuddy
-TurtleWoW shields tracker
+Vanilla WoW 1.12 shields tracker (Tested only on TurtleWoW)
 
 ## Features
 ShieldBuddy will automatically track shields when you or your party members cast them on you. The addon provides visual feedback about shield amounts in the form of a movable shield-bar.
