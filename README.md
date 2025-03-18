@@ -2,17 +2,10 @@
 TurtleWoW shields tracker
 
 ## Features
-- Tracks absorption shields and their remaining values
-- Real-time shield value updates
-- Support for various shield types
-- Visual display of shield status
-- Customizable options
+ShieldBuddy will automatically track shields when you or your party members cast them on you. The addon provides visual feedback about shield amounts in the form of a movable shield-bar.
 
 ## Requirements
 - SuperWoW client mod
-
-## Usage
-ShieldBuddy will automatically track shields when you or your party members cast them on you. The addon provides visual feedback about shield amounts in the form of a movable shield-bar.
 
 ## Screenshots
 ![image](https://github.com/user-attachments/assets/bdfc7e08-087e-4172-b7b3-8e44b4fcc5f8)
