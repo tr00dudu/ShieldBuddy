@@ -3,9 +3,7 @@ TurtleWoW shields tracker
 
 ## Features
 - Tracks absorption shields and their remaining values
-- Real-time shield value updates
-- Support for various shield types
-- Visual display of shield status
+- Support for various (all?) shield types
 - Customizable options
 
 ## Requirements
@@ -19,7 +17,6 @@ You can access ShieldBuddy's options through the ShieldBuddy minimap button.
 
 ## To-do and known issues
 - Needs more testing for shields (PW: Shield) received from others
-- Support for tracking shields on other party members
 
 ## Version
-1.1
+1.2
