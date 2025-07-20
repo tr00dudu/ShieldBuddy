@@ -285,17 +285,17 @@ local function GetShieldsForDamageType(dmgType)
     dmgType = string.lower(dmgType)
     
     -- First get all active shields in their cast order
-    for _, shieldName in ipairs(activeShields.order) do
-        local shield = activeShields.shields[shieldName]
+    for _, shieldKey in ipairs(activeShields.order) do
+        local shield = activeShields.shields[shieldKey]
         if shield and shield.current_value and shield.current_value > 0 then
-            local damageTypes = SHIELD_DAMAGE_TYPES[shieldName]
+            local damageTypes = SHIELD_DAMAGE_TYPES[shield.name]
             if damageTypes then
                 for _, shieldDmgType in ipairs(damageTypes) do
                     -- Convert shield damage type to lowercase for comparison
                     if string.lower(shieldDmgType) == dmgType or dmgType == "any" then
                         -- Don't add Mana Shield yet
-                        if shieldName ~= "Mana Shield" then
-                            table.insert(shields, shieldName)
+                        if shield.name ~= "Mana Shield" then
+                            table.insert(shields, shieldKey)
                         end
                         break
                     end
@@ -305,14 +305,15 @@ local function GetShieldsForDamageType(dmgType)
     end
     
     -- Add Mana Shield last if it's active and valid for the damage type
-    local manaShield = activeShields.shields["Mana Shield"]
-    if manaShield and manaShield.current_value and manaShield.current_value > 0 then
-        local manaShieldTypes = SHIELD_DAMAGE_TYPES["Mana Shield"]
-        for _, shieldDmgType in ipairs(manaShieldTypes) do
-            -- Convert shield damage type to lowercase for comparison
-            if string.lower(shieldDmgType) == dmgType or dmgType == "any" then
-                table.insert(shields, "Mana Shield")
-                break
+    for shieldKey, shield in pairs(activeShields.shields) do
+        if shield.name == "Mana Shield" and shield.current_value and shield.current_value > 0 then
+            local manaShieldTypes = SHIELD_DAMAGE_TYPES["Mana Shield"]
+            for _, shieldDmgType in ipairs(manaShieldTypes) do
+                -- Convert shield damage type to lowercase for comparison
+                if string.lower(shieldDmgType) == dmgType or dmgType == "any" then
+                    table.insert(shields, shieldKey)
+                    break
+                end
             end
         end
     end
@@ -370,9 +371,10 @@ function UpdateShieldDisplay()
         end
         
         -- Calculate total values
-        for _, shieldName in ipairs(shieldList) do
-            totalValue = totalValue + (activeShields.shields[shieldName].current_value or 0)
-            totalMax = totalMax + (activeShields.shields[shieldName].max_value or 0)
+        for _, shieldKey in ipairs(shieldList) do
+            local shield = activeShields.shields[shieldKey]
+            totalValue = totalValue + (shield.current_value or 0)
+            totalMax = totalMax + (shield.max_value or 0)
         end
         
         -- Only show cumulative bar if there are actual shields
@@ -382,8 +384,9 @@ function UpdateShieldDisplay()
             
             -- First calculate total max value
             local totalMaxValue = 0
-            for i, shieldName in ipairs(shieldList) do
-                totalMaxValue = totalMaxValue + (activeShields.shields[shieldName].max_value or 0)
+            for i, shieldKey in ipairs(shieldList) do
+                local shield = activeShields.shields[shieldKey]
+                totalMaxValue = totalMaxValue + (shield.max_value or 0)
             end
             
             -- Reverse the shield list so oldest (first to be damaged) is on the left/top
@@ -396,8 +399,9 @@ function UpdateShieldDisplay()
             if ShieldBuddyOptions.Orientation == "vertical" then
                 -- First, remove Mana Shield if it exists
                 local manaShieldIndex = nil
-                for i, shieldName in ipairs(reversedList) do
-                    if shieldName == "Mana Shield" then
+                for i, shieldKey in ipairs(reversedList) do
+                    local shield = activeShields.shields[shieldKey]
+                    if shield.name == "Mana Shield" then
                         manaShieldIndex = i
                         break
                     end
@@ -422,14 +426,15 @@ function UpdateShieldDisplay()
             end
 
             -- Create segments
-            for i, shieldName in ipairs(reversedList) do
-                local currentValue = activeShields.shields[shieldName].current_value
-                local maxValue = activeShields.shields[shieldName].max_value
+            for i, shieldKey in ipairs(reversedList) do
+                local shield = activeShields.shields[shieldKey]
+                local currentValue = shield.current_value
+                local maxValue = shield.max_value
                 
                 if not cumulativeBar.barFrame.segments[i] then
                     local segment = CreateFrame("StatusBar", nil, cumulativeBar.barFrame.segmentContainer)
                     segment:SetStatusBarTexture("Interface\\TargetingFrame\\UI-StatusBar")
-                    local r, g, b = GetShieldColor(shieldName)
+                    local r, g, b = GetShieldColor(shield.name)
                     segment:SetStatusBarColor(r, g, b)
                     if ShieldBuddyOptions.Orientation == "vertical" then
                         segment:SetOrientation("VERTICAL")
@@ -442,7 +447,7 @@ function UpdateShieldDisplay()
                 else
                     -- Update existing segment color and orientation
                     local segment = cumulativeBar.barFrame.segments[i]
-                    local r, g, b = GetShieldColor(shieldName)
+                    local r, g, b = GetShieldColor(shield.name)
                     segment:SetStatusBarColor(r, g, b)
                     if ShieldBuddyOptions.Orientation == "vertical" then
                         segment:SetOrientation("VERTICAL")
@@ -494,7 +499,7 @@ function UpdateShieldDisplay()
             end
             
             -- Create and position icons
-            for i, shieldName in ipairs(reversedList) do
+            for i, shieldKey in ipairs(reversedList) do
                 if not cumulativeBar.barFrame.icons[i] then
                     local iconFrame = CreateFrame("Frame", nil, cumulativeBar.barFrame.iconContainer)
                     iconFrame:SetWidth(16)
@@ -526,7 +531,8 @@ function UpdateShieldDisplay()
                     end
                 end
                 
-                iconInfo.texture:SetTexture(ShieldBuddyShields.GetShieldIcon(shieldName))
+                local shield = activeShields.shields[shieldKey]
+                iconInfo.texture:SetTexture(ShieldBuddyShields.GetShieldIcon(shield.name))
                 iconInfo.frame:Show()
             end
             
@@ -553,7 +559,7 @@ function UpdateShieldDisplay()
     
     -- Update individual shield bars if enabled
     if ShieldBuddyOptions.ShowIndividual == 1 then
-        for _, shieldName in ipairs(shieldList) do
+        for _, shieldKey in ipairs(shieldList) do
             count = count + 1
             local barInfo = GetShieldBar(count, false)
             
@@ -574,16 +580,17 @@ function UpdateShieldDisplay()
             end
             
             -- Update icon
-            barInfo.barFrame.icon:SetTexture(ShieldBuddyShields.GetShieldIcon(shieldName))
+            local shield = activeShields.shields[shieldKey]
+            barInfo.barFrame.icon:SetTexture(ShieldBuddyShields.GetShieldIcon(shield.name))
             
             -- Update bar value
-            local currentValue = activeShields.shields[shieldName].current_value
-            local maxValue = activeShields.shields[shieldName].max_value or 0
+            local currentValue = shield.current_value
+            local maxValue = shield.max_value or 0
             barInfo.barFrame.bar:SetMinMaxValues(0, maxValue)
             barInfo.barFrame.bar:SetValue(currentValue)
             
             -- Set bar color
-            local r, g, b = GetShieldColor(shieldName)
+            local r, g, b = GetShieldColor(shield.name)
             barInfo.barFrame.bar:SetStatusBarColor(r, g, b)
             
             -- Update value text
@@ -637,7 +644,12 @@ local function HandleCastEvent(caster, target, event, spellId)
             Debug("Self-cast shield detected: " .. spellId .. " (" .. spellInfo.name .. ") with value " .. spellInfo.value)
             
             -- Create or update shield data
-            activeShields.shields[spellInfo.name] = {
+            local shieldKey = spellInfo.name
+            -- Only use spell ID for specific items that can stack
+            if spellInfo.name == "Fire Protection" then
+                shieldKey = spellInfo.name .. "_" .. spellId
+            end
+            activeShields.shields[shieldKey] = {
                 name = spellInfo.name,
                 current_value = spellInfo.value,
                 max_value = spellInfo.value,
@@ -646,13 +658,13 @@ local function HandleCastEvent(caster, target, event, spellId)
             
             -- Remove if already in order list
             for i = 1, table.getn(activeShields.order) do
-                if activeShields.order[i] == spellInfo.name then
+                if activeShields.order[i] == shieldKey then
                     table.remove(activeShields.order, i)
                     break
                 end
             end
             -- Add to end of order list (oldest first)
-            table.insert(activeShields.order, spellInfo.name)
+            table.insert(activeShields.order, shieldKey)
             Debug("Shield order updated: " .. table.concat(activeShields.order, ", "))
             UpdateShieldDisplay()
             
@@ -661,7 +673,8 @@ local function HandleCastEvent(caster, target, event, spellId)
             Debug("External shield received: " .. spellId .. " (" .. spellInfo.name .. ") with value " .. spellInfo.value)
             
             -- Create or update shield data
-            activeShields.shields[spellInfo.name] = {
+            local shieldKey = spellInfo.name
+            activeShields.shields[shieldKey] = {
                 name = spellInfo.name,
                 current_value = spellInfo.value,
                 max_value = spellInfo.value,
@@ -670,13 +683,13 @@ local function HandleCastEvent(caster, target, event, spellId)
             
             -- Remove if already in order list
             for i = 1, table.getn(activeShields.order) do
-                if activeShields.order[i] == spellInfo.name then
+                if activeShields.order[i] == shieldKey then
                     table.remove(activeShields.order, i)
                     break
                 end
             end
             -- Add to end of order list (oldest first)
-            table.insert(activeShields.order, spellInfo.name)
+            table.insert(activeShields.order, shieldKey)
             Debug("Shield order updated: " .. table.concat(activeShields.order, ", "))
             UpdateShieldDisplay()
         end
@@ -807,10 +820,10 @@ local function HandleDamageAbsorption(msg)
     local remainingDamage = absorbed
     
     -- Try to absorb damage with each shield in priority order
-    for _, shieldName in ipairs(shields) do
+    for _, shieldKey in ipairs(shields) do
         if remainingDamage <= 0 then break end
         
-        local shield = activeShields.shields[shieldName]
+        local shield = activeShields.shields[shieldKey]
         Debug(shield.name .. " current value: " .. (shield.current_value or "nil") .. ", max value: " .. (shield.max_value or "nil"))
         
         if shield and shield.current_value and shield.current_value > 0 then
@@ -819,7 +832,7 @@ local function HandleDamageAbsorption(msg)
             -- Only check for max value updates if this is the only shield that can absorb this damage type
             if table.getn(shields) == 1 and absorbed > shield.current_value then
                 -- If the shield absorbed more damage than it currently has, adjust the max value and current value
-                Debug(string.format("Shield %s absorbed %d damage, which is more than current value %d - adjusting max value and current value", shieldName, absorbed, shield.current_value))
+                Debug(string.format("Shield %s absorbed %d damage, which is more than current value %d - adjusting max value and current value", shield.name, absorbed, shield.current_value))
                 shield.max_value = shield.max_value + (absorbed - shield.current_value)
                 shield.current_value = 1
                 shield.update_max_value = true
@@ -827,10 +840,10 @@ local function HandleDamageAbsorption(msg)
                 local newValue = shield.current_value - absorbedAmount
                 if table.getn(shields) == 1 and newValue > 0 and damage > 0 then
                     -- If the shield absorbed less than max damage and broke on damage (player received >0 damage), mark it as broke on damage
-                    Debug(string.format("Shield %s absorbed %d damage, it is still supposed to have %d value, but %d damage passed through the shield. Marking shield as broken.", shieldName, absorbed, newValue, damage))
+                    Debug(string.format("Shield %s absorbed %d damage, it is still supposed to have %d value, but %d damage passed through the shield. Marking shield as broken.", shield.name, absorbed, newValue, damage))
                     shield.broke_on_damage = true
                 else
-                    Debug(string.format("%s absorbed %d damage, new value: %d", shieldName, absorbedAmount, newValue))
+                    Debug(string.format("%s absorbed %d damage, new value: %d", shield.name, absorbedAmount, newValue))
                 end
                 shield.current_value = newValue
             end
@@ -904,32 +917,44 @@ local function OnEvent()
     -- Shield break detection
     elseif event == "CHAT_MSG_SPELL_AURA_GONE_SELF" then
         local _, _, buffName = string.find(arg1, "(.-)%s+fades from you")
-        local shield = activeShields.shields[buffName]
-        if shield then
+        
+        -- Find the shield by matching the base name
+        local shieldToRemove = nil
+        local shieldKeyToRemove = nil
+        
+        for shieldKey, shield in pairs(activeShields.shields) do
+            if shield.name == buffName then
+                shieldToRemove = shield
+                shieldKeyToRemove = shieldKey
+                break
+            end
+        end
+        
+        if shieldToRemove then
             Debug(buffName .. " faded")
             
             -- If this shield had a higher max value than we thought, update it in our tracking
-            if shield and
-               shield.spell_id and
-               shield.max_value and
+            if shieldToRemove and
+               shieldToRemove.spell_id and
+               shieldToRemove.max_value and
                ShieldBuddyShields.ShouldTrackShieldValue(buffName)
             then
-                if shield.update_max_value == true then
-                    Debug(string.format("Shield %s faded with max value: %d (spell ID: %d)", buffName, shield.max_value, shield.spell_id))
+                if shieldToRemove.update_max_value == true then
+                    Debug(string.format("Shield %s faded with max value: %d (spell ID: %d)", buffName, shieldToRemove.max_value, shieldToRemove.spell_id))
                     local _, playerGuid = UnitExists("player")
-                    ShieldBuddyShields.UpdateTrackedShieldValue(buffName, shield.spell_id, playerGuid, shield.max_value)
-                elseif shield.broke_on_damage == true then
-                    Debug(string.format("Shield %s broke on damage with remaining value: %d (spell ID: %d)", buffName, shield.current_value, shield.spell_id))
+                    ShieldBuddyShields.UpdateTrackedShieldValue(buffName, shieldToRemove.spell_id, playerGuid, shieldToRemove.max_value)
+                elseif shieldToRemove.broke_on_damage == true then
+                    Debug(string.format("Shield %s broke on damage with remaining value: %d (spell ID: %d)", buffName, shieldToRemove.current_value, shieldToRemove.spell_id))
                     local _, playerGuid = UnitExists("player")
-                    ShieldBuddyShields.UpdateTrackedShieldValue(buffName, shield.spell_id, playerGuid, shield.max_value - shield.current_value)
+                    ShieldBuddyShields.UpdateTrackedShieldValue(buffName, shieldToRemove.spell_id, playerGuid, shieldToRemove.max_value - shieldToRemove.current_value)
                 end
                 
             end
 
-            activeShields.shields[buffName] = nil
+            activeShields.shields[shieldKeyToRemove] = nil
             -- Remove from order list
             for i = table.getn(activeShields.order), 1, -1 do
-                if activeShields.order[i] == buffName then
+                if activeShields.order[i] == shieldKeyToRemove then
                     table.remove(activeShields.order, i)
                     break
                 end
