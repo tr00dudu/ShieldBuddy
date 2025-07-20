@@ -5,7 +5,7 @@
 ## Author: Dudu
 ## Version: 1.1
 ## Dependencies: SuperAPI
-## SavedVariablesPerCharacter: ShieldBuddyOptions, ShieldBuddyShieldDB
+## SavedVariablesPerCharacter: ShieldBuddyOptions, ShieldBuddyShieldDB, ShieldBuddyAbsorbLog
 
 ShieldBuddyOptions.lua
 ShieldBuddyButton.xml

@@ -97,7 +97,10 @@ local SHIELD_SPELLS = {
     -- Misc (self use)
     [4077] = { name = "Frost Resistance", value = 600, icon = "Interface\\Icons\\Spell_Frost_WizardMark", self = true },  -- Ice Deflector
     [4057] = { name = "Fire Resistance", value = 500, icon = "Interface\\Icons\\Spell_Fire_FireArmor", self = true },   -- Fire Deflector
-    [29506] = { name = "The Burrower's Shell", value = 900, icon = "Interface\\Icons\\INV_Misc_Shell_03", self = true }
+    [29506] = { name = "The Burrower's Shell", value = 900, icon = "Interface\\Icons\\INV_Misc_Shell_03", self = true },
+    
+    -- Naxxramas Items (self use)
+    [29432] = { name = "Fire Protection", value = 2000, icon = "Interface\\Icons\\Spell_fire_masterofelements", self = true }  -- Frozen Rune
 }
 
 -- Table to store shield icons for non-spell shields (like potions)
@@ -117,7 +120,8 @@ local SHIELD_ICONS = {
     ["Holy Protection"] = "Interface\\Icons\\Spell_Holy_SealOfProtection",
     ["Frost Resistance"] = "Interface\\Icons\\Spell_Frost_WizardMark",
     ["Fire Resistance"] = "Interface\\Icons\\Spell_Fire_FireArmor",
-    ["The Burrower's Shell"] = "Interface\\Icons\\INV_Misc_Shell_03"
+    ["The Burrower's Shell"] = "Interface\\Icons\\INV_Misc_Shell_03",
+    ["Frozen Rune"] = "Interface\\Icons\\Spell_fire_masterofelements"
 }
 
 

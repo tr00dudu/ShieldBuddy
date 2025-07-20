@@ -4,6 +4,24 @@ if not SUPERWOW_VERSION then
     return
 end
 
+-- At the top of the file, after other SavedVariables
+ShieldBuddyAbsorbLog = ShieldBuddyAbsorbLog or {}
+
+-- Helper to check if a value exists in a table
+local function AbsorbLogContains(tbl, value)
+    for i = 1, table.getn(tbl) do
+        if tbl[i] == value then
+            return true
+        end
+    end
+    return false
+end
+
+-- Helper to normalize string by replacing consecutive numbers with X
+local function NormalizeString(str)
+    return string.gsub(str, "%d+", "X")
+end
+
 -- Shield type to damage type mapping
 local SHIELD_DAMAGE_TYPES = {
     ["Mana Shield"] = { "Physical" },
@@ -739,9 +757,43 @@ local function ParseDamageType(msg)
     return "Physical"
 end
 
+-- Function to check if damage is done to the player
+local function IsDamageToPlayer(msg)
+    if not msg then return false end
+    
+    -- Check for "you" as the target in various formats
+    if string.find(msg, "hits you for") or
+       string.find(msg, "crits you for") or
+       string.find(msg, "You suffer") or
+       string.find(msg, "You lose") then
+        return true
+    end
+    
+    -- Check for self-damage patterns (player damaging themselves)
+    if string.find(msg, "Your .+ hits you for") or
+       string.find(msg, "Your .+ crits you for") then
+        return true
+    end
+    
+    -- Check for environmental damage to player
+    if string.find(msg, "lose %d+ health for") then
+        return true
+    end
+    
+    return false
+end
+
 -- Function to handle damage absorption
 local function HandleDamageAbsorption(msg)
     if not string.find(msg, "absorbed") then return end
+    
+    -- Only process if damage is done to the player
+    if not IsDamageToPlayer(msg) then
+        Debug("Skipping damage absorption - not done to player: " .. msg)
+        return
+    end
+    
+    Debug("Processing damage absorption for player: " .. msg)
     
     local damage, absorbed = ParseAbsorbAmount(msg)
     if absorbed <= 0 then return end
@@ -890,6 +942,12 @@ local function OnEvent()
         activeShields.order = {}
         UpdateShieldDisplay()
     else
+        -- Early return if no shields are active
+        if table.getn(activeShields.order) == 0 then
+            Debug("No shields are active, skipping combat log parsing")
+            return
+        end
+        
         -- Handle damage absorption events
         if string.find(arg1 or "", "absorbed") then
             Debug("--------------------------------")
@@ -898,6 +956,17 @@ local function OnEvent()
             Debug("--------------------------------")
         end
     end
+
+    -- Debug: save absorb messages
+    -- if arg1 and string.find(arg1, "[Aa]bsorb") then
+    --    local normalizedMsg = NormalizeString(arg1)
+    --    if not AbsorbLogContains(ShieldBuddyAbsorbLog, normalizedMsg) then
+    --        table.insert(ShieldBuddyAbsorbLog, normalizedMsg)
+    --        if table.getn(ShieldBuddyAbsorbLog) > 2000 then
+    --            table.remove(ShieldBuddyAbsorbLog, 1)
+    --        end
+    --    end
+    --end
 end
 
 -- Export functions for use by other files
